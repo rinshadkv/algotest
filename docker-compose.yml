@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+
+  order_service:
+    build: OrderService
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+      - postgres
+      - rabbitmq_server
+
+  trade_service:
+    build: TradeService
+    ports:
+      - "9000:9000"
+    restart: always
+    depends_on:
+      - rabbitmq_server
+
+  socket_service:
+    build: SocketService
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on:
+      - rabbitmq_server
+
+  postgres:
+    image: postgres:alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: stock_exchange
+
+  rabbitmq_server:
+    image: rabbitmq:alpine
+    ports:
+      - "5673:5672"
+
