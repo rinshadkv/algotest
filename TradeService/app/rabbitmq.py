@@ -1,9 +1,9 @@
 import json
+import logging
 import time
 
 import pika
 
-from .order_book import *
 from .schema import Order
 
 logging.basicConfig(level=logging.INFO)
@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 MAX_RETRIES = 10
 RETRY_DELAY = 5
+
+from .order_book import add_to_order_book, update_order_book, remove_order
 
 
 def consume_orders():
@@ -56,7 +58,6 @@ def consume_orders():
         order_data = json.loads(body)
         action = order_data.get('action')
         order = Order(**order_data.get('order'))
-        print(action, order)
 
         if action == 'create':
             # Add order to the order book
@@ -79,27 +80,3 @@ def consume_orders():
 
     # Start consuming messages
     channel.start_consuming()
-
-
-# def publish_order_book_snapshot(snapshot):
-#     """
-#     Publishes the order book snapshot to the RabbitMQ channel.
-#     """
-#     try:
-#         # Establish connection to RabbitMQ server
-#         connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq_server'))
-#         channel = connection.channel()
-#
-#         # Declare exchange for publishing messages
-#         channel.exchange_declare(exchange='order_book_snapshots', exchange_type='direct')
-#
-#         # Publish the snapshot to the 'order.snapshot' queue
-#         channel.basic_publish(exchange='order_book_exchange', routing_key='order_book.snapshot', body=snapshot)
-#
-#         logger.info("Order book snapshot published successfully.")
-#     except Exception as e:
-#         logger.error(f"Failed to publish order book snapshot: {e}")
-#     finally:
-#         # Close the connection
-#         if connection:
-#             connection.close()

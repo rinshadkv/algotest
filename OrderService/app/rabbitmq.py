@@ -26,10 +26,12 @@ def publish_order(order, action):
     channel.exchange_declare(exchange="order", exchange_type="direct")
 
     # Serialize the order to JSON with proper indentation
-    order_json = json.dumps({"action": action, "order": order.to_dict()})  # Include action in message
+    # Include action in message
+    order_json = json.dumps({"action": action, "order": order.to_dict()})
 
     # Determine routing key based on action
-    routing_key = f"order.{action}"  # Use different routing keys for different actions
+    # Use different routing keys for different actions
+    routing_key = f"order.{action}"
 
     # Publish the order to the exchange with appropriate routing key
     channel.basic_publish(exchange="order", routing_key=routing_key,
@@ -45,19 +47,17 @@ def publish_trade(db_trade):
     """
     try:
         # Establish connection to RabbitMQ server
-        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq_server'))
+        connection = pika.BlockingConnection(
+            pika.ConnectionParameters('rabbitmq_server'))
         channel = connection.channel()
 
         # Declare exchange for publishing messages
         channel.exchange_declare(exchange='trade', exchange_type='direct')
 
         # Publish the snapshot to the 'trade.snapshot' queue
-        channel.basic_publish(exchange='trade', routing_key='trade.snapshot', body=db_trade)
+        channel.basic_publish(
+            exchange='trade', routing_key='trade.snapshot', body=db_trade)
 
         logger.info("Trade snapshot published successfully.")
     except Exception as e:
         logger.error(f"Failed to publish trade snapshot: {e}")
-    finally:
-        # Close the connection
-        if connection:
-            connection.close()

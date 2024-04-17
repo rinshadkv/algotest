@@ -1,9 +1,9 @@
-import logging
 import uuid
 
 from fastapi import HTTPException
 from sqlalchemy import func, and_, or_
 from sqlalchemy.orm import Session
+from websockets.sync.client import connect
 
 from . import schema
 from .database import SessionLocal
@@ -73,9 +73,20 @@ def create_trade(db: Session, trade: schema.Trade):
     # Update related orders
     update_orders(trade.buyer_order_id, trade.seller_order_id, trade.quantity)
     publish_trade(db_trade)
-
+    broadcast_trade(db_trade)
     # Return the ID of the created trade
     return db_trade.id
+
+
+def broadcast_trade(trade):
+    uri = "ws://socket_service:8080/trades"
+
+    with connect(uri) as websocket:
+        trade_dict = trade.to_dict()  # Convert Trade object to dictionary
+        # Serialize dictionary to JSON string
+        trade_str = json.dumps(trade_dict)
+        logger.info(trade_str)
+        websocket.send(trade_str)
 
 
 def get_order(db: Session, order_id: int):

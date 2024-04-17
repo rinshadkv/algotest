@@ -89,6 +89,19 @@ The Order API is implemented as a set of microservices, each responsible for spe
   Description: Fetches all trades that have taken place.
   Returns: List of trade details
 
+* Trades [WEBSOCKET]
+
+   **Endpoint: ws://localhost:8080/trades**
+
+   Description: Broadcast live trades
+
+
+* OrderBook Snapshot [WEBSOCKET] 
+
+   **Endpoint: ws://localhost:8080/order-books**
+
+   Description: Broadcast live order book snapshots
+
 ## Microservices Overview
 
 ### Order Service

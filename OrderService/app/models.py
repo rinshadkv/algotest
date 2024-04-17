@@ -62,6 +62,17 @@ class Trade(BaseProperties):
     class Config:
         orm_mode = True
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "price": self.price,
+            "quantity": self.quantity,
+            "buyer_order_id": self.buyer_order_id,
+            "seller_order_id": self.seller_order_id,
+            "execution_timestamp": self.execution_timestamp.isoformat(),
+            "unique_id": self.unique_id,
+        }
+
 
 class User(BaseProperties):
     __tablename__ = "users"
