@@ -2,42 +2,48 @@ version: "3.9"
 
 services:
 
+  # Order Service
   order_service:
-    build: OrderService
+    build: OrderService             # Build the OrderService Docker image
     ports:
-      - "8000:8000"
-    restart: always
+      - "8000:8000"                # Expose port 8000 for HTTP API
+    restart: always                # Restart the container automatically
     depends_on:
-      - postgres
-      - rabbitmq_server
+      - postgres                   # Depend on PostgreSQL container
+      - rabbitmq_server            # Depend on RabbitMQ container
 
+  # Trade Service
   trade_service:
-    build: TradeService
+    build: TradeService            # Build the TradeService Docker image
     ports:
-      - "9000:9000"
-    restart: always
+      - "9000:9000"                # Expose port 9000 for Trade updates
+    restart: always                # Restart the container automatically
     depends_on:
-      - rabbitmq_server
+      - rabbitmq_server            # Depend on RabbitMQ container
 
+  # Socket Service
   socket_service:
-    build: SocketService
+    build: SocketService           # Build the SocketService Docker image
     ports:
-      - "8080:8080"
-    restart: always
+      - "8080:8080"                # Expose port 8080 for WebSocket connections
+    restart: always                # Restart the container automatically
     depends_on:
-      - rabbitmq_server
+      - rabbitmq_server            # Depend on RabbitMQ container
 
+  # PostgreSQL Database
   postgres:
-    image: postgres:alpine
+    image: postgres:alpine        # Use PostgreSQL Alpine image
     ports:
-      - "5433:5432"
+      - "5433:5432"                # Expose port 5433 for PostgreSQL connections use this for avoid conflicts   with local ports
+#     - "5432:5432"                # Expose port 5432 for PostgreSQL use this for production
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: stock_exchange
+      POSTGRES_USER: user          # Set PostgreSQL username
+      POSTGRES_PASSWORD: password  # Set PostgreSQL password
+      POSTGRES_DB: stock_exchange  # Set PostgreSQL database name
 
+  # RabbitMQ Message Queue
   rabbitmq_server:
-    image: rabbitmq:alpine
+    image: rabbitmq:alpine        # Use RabbitMQ Alpine image
     ports:
-      - "5673:5672"
-
+      - "5673:5672"                # Expose port 5673 for RabbitMQ connections use this for avoid conflicts with local RabbitMQ
+#     - "5673:5672"                # use this port for RabbitMQ connection in production
